@@ -1,0 +1,14 @@
+{
+  "name": "c798aaae39e6fb72",
+  "main": "c798aaae39e6fb72@234.js",
+  "version": "234.0.0",
+  "homepage": "https://observablehq.com/d/c798aaae39e6fb72",
+  "author": {
+    "name": "susuda",
+    "url": "https://observablehq.com/@susuda"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4 - 5"
+  }
+}
