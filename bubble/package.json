@@ -1,0 +1,14 @@
+{
+  "name": "75635c9d870d9dcf",
+  "main": "75635c9d870d9dcf@16.js",
+  "version": "16.0.0",
+  "homepage": "https://observablehq.com/d/75635c9d870d9dcf",
+  "author": {
+    "name": "Edgar Herrera",
+    "url": "https://observablehq.com/@edgar-herrera"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4 - 5"
+  }
+}
