@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>Social Media Impact on Teen Mental Health</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fafafa;
+            color: #333;
+            margin: 0;
+            padding: 40px;
+        }
+
+        /* Slideshow logic: Hide all slides by default */
+        .slide {
+            display: none;
+            flex-direction: column; /* Stacks text on top of the charts */
+            gap: 20px;
+            max-width: 1000px; /* Keeps the text from stretching too far */
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Only show the active slide */
+        .slide.active {
+            display: flex;
+        }
+
+        /* Text layout */
+        .text-container {
+            width: 100%;
+            line-height: 1.6;
+        }
+
+        .chart-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center; /* Centers the charts */
+        }
+
+        /* Forces the SVG graphics to scale down instead of scrolling */
+        .chart-container svg {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        /* Button styling */
+        .nav-buttons {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end; 
+            gap: 15px;
+            margin-top: 30px; 
+        }
+
+        button {
+            padding: 10px 24px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            color: #222;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="slide1" class="slide active">
+        <div class="text-container">
+            <h2>App Choice and Mental Health</h2>
+            <p>Most of us spend hours scrolling through our phones every single day, but have you ever stopped to think about how your favorite apps actually change how you feel? We looked at survey data from 1,200 teenagers to see what is really going on behind the screens. This first chart compares how platforms like Instagram and TikTok relate to daily stress and anxiety.</p>
+            <p>Take a look at the groups to see the overall trends between the platforms. To explore the data yourself, hover your mouse over any bar. A small box will pop up to show you the exact average stress or anxiety score out of ten for that specific group of students.</p>
+        </div>
+        <div class="chart-container" id="bar-chart-container"></div>
+
+        <div class="nav-buttons">
+            <button onclick="changeSlide(2)">Next</button>
+        </div>
+    </div>
+
+    <div id="slide2" class="slide">
+        <div class="text-container">
+            <h2>The Late Night Scrolling Chain Reaction</h2>
+            <p>Now that we see how social media connects to our emotions, let us look at how phone habits affect our physical routines. It can feel like staying up a few extra minutes online does not matter, but tracking the hours shows a clear chain reaction. This diagram maps how screen time right before bed directly changes how much sleep we get and how much we exercise.</p>
+            <p>The data moves from left to right, starting with phone use and flowing into sleep hours and physical activity levels. Since the full diagram can look a bit crowded at first, you can hover your mouse over any individual path. This will light up that specific stream and dim everything else, showing you a small box with the exact number of teenagers who follow that exact daily routine.</p>
+        </div>
+        <div class="chart-container">
+            <div id="sankey-chart-container"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <button onclick="changeSlide(1)">Previous</button>
+            <button onclick="changeSlide(3)">Next</button>
+        </div>
+    </div>
+
+    <div id="slide3" class="slide">
+        <div class="text-container">
+            <h2>Addiction, Grades, and Social Life</h2>
+            <p>For our final stop, we want to look at the big picture outcomes. How do these daily phone habits and addiction levels stack up against actual performance in school? This final chart maps self-reported social media addiction levels on the bottom against academic grades on the side.</p>
+            <p>Each circle on the screen represents a single student from the survey. The chart will automatically cycle through different views so you can easily see how teenagers on different platforms are doing. If you see an interesting pattern you want to study, just click anywhere on the chart to pause the animation, and click it again to unpause.</p>
+            <p>To dive deeper into any student's story, just hover your mouse over their bubble. A box will pop up showing their specific details, including their primary platform, exact addiction score, school grades, age, and whether their real life social interaction level is low, medium, or high.</p>
+        </div>
+        <div class="chart-container" id="bubble-chart-container"></div>
+
+        <div class="nav-buttons">
+            <button onclick="changeSlide(2)">Previous</button>
+        </div>
+    </div>
+
+    <script>
+        function changeSlide(slideNumber) {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Show the selected slide
+            document.getElementById('slide' + slideNumber).classList.add('active');
+            
+            // Scroll smoothly back to the top of the page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+
+    <script type="module">
+        import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@5/dist/runtime.js";
+        
+        // Import team's specific notebooks
+        import defineBar from "https://api.observablehq.com/d/c798aaae39e6fb72@234.js?v=4";
+        import defineSankey from "https://api.observablehq.com/d/025c073b20115d96.js?v=4";
+        import defineBubble from "https://api.observablehq.com/d/75635c9d870d9dcf.js?v=4";
+
+        // import defineScatter from "https://api.observablehq.com/d/1faba6d3ddf2c2a1.js?v=3";
+
+        const runtime = new Runtime();
+
+        // Render the Grouped Bar Chart
+        runtime.module(defineBar, name => {
+            if (name === "chart") {
+                return new Inspector(document.querySelector("#bar-chart-container"));
+            }
+        });
+
+        // Render the Sankey Diagram
+        runtime.module(defineSankey, name => {
+            if (name === "chart2") {
+                return new Inspector(document.querySelector("#sankey-chart-container"));
+            }
+        });
+
+        // Render the Bubble Chart
+        runtime.module(defineBubble, name => {
+            if (name === "bubbleChart") {
+                return new Inspector(document.querySelector("#bubble-chart-container"));
+            }
+        });
+
+        // Render the Scatterplot
+        // runtime.module(defineScatter, name => {
+        //     if (name === "screentime_vs_sleep") {
+        //         return new Inspector(document.querySelector("#scatter-chart-container"));
+        //     }
+        // });
+    </script>
+
+</body>
+</html>
