@@ -2,53 +2,95 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Media Impact on Teen Mental Health</title>
     <style>
+        /* Base styling & color scheme */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #fafafa;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #F4F7F6; /* Calming off-white */
+            color: #2D3748; /* Dark slate for readability */
             margin: 0;
-            padding: 40px;
+            padding: 40px 20px;
         }
 
-        /* Slideshow logic: Hide all slides by default */
+        /* Slideshow logic: hide all slides by default */
         .slide {
             display: none;
-            flex-direction: column; /* Stacks text on top of the charts */
+            flex-direction: column;
             gap: 20px;
-            max-width: 1000px; /* Keeps the text from stretching too far */
+            max-width: 1200px; 
             margin: 0 auto;
             background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        /* Only show the active slide */
+        /* Active slide with fade-in animation */
         .slide.active {
             display: flex;
+            animation: fadeSlideIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Text layout */
         .text-container {
             width: 100%;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #1A202C;
+            margin-top: 0;
+            font-size: 2rem;
+            border-bottom: 3px solid #E2E8F0;
+            padding-bottom: 10px;
         }
 
         .chart-container {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 30px;
-            align-items: center; /* Centers the charts */
+            align-items: center;
         }
 
-        /* Forces the SVG graphics to scale down instead of scrolling */
-        .chart-container svg {
-            max-width: 100%;
+        /* Split layout for slide 2 (Sankey left, detail charts right) */
+        .layout-split {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr; 
+            gap: 40px;
+            align-items: start;
+            width: 100%;
+        }
+
+        .side-charts {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #F8FAFC;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .chart-container svg, 
+        .layout-split svg {
+            width: 100%;
             height: auto !important;
+            display: block;
         }
 
         /* Button styling */
@@ -57,27 +99,34 @@
             display: flex;
             justify-content: flex-end; 
             gap: 15px;
-            margin-top: 30px; 
+            margin-top: 40px; 
+            border-top: 1px solid #E2E8F0;
+            padding-top: 20px;
         }
 
         button {
-            padding: 10px 24px;
+            padding: 12px 28px;
             font-size: 16px;
+            font-weight: 600;
             color: white;
-            background-color: #007bff;
+            background-color: #4A90E2; 
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(74, 144, 226, 0.2);
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #357ABD;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(74, 144, 226, 0.3);
         }
 
-        h2 {
-            color: #222;
-            margin-top: 0;
+        @media (max-width: 900px) {
+            .layout-split {
+                grid-template-columns: 1fr; 
+            }
         }
     </style>
 </head>
@@ -100,12 +149,18 @@
         <div class="text-container">
             <h2>The Late Night Scrolling Chain Reaction</h2>
             <p>Now that we see how social media connects to our emotions, let us look at how phone habits affect our physical routines. It can feel like staying up a few extra minutes online does not matter, but tracking the hours shows a clear chain reaction. This diagram maps how screen time right before bed directly changes how much sleep we get and how much we exercise.</p>
-            <p>The data moves from left to right, starting with phone use and flowing into sleep hours and physical activity levels. Since the full diagram can look a bit crowded at first, you can hover your mouse over any individual path. This will light up that specific stream and dim everything else, showing you a small box with the exact number of teenagers who follow that exact daily routine.</p>
+            <p>The data moves from left to right. <strong>Click on any path on the left or right</strong> of the diagram to reveal detailed breakdowns of the data in the side panel.</p>
         </div>
-        <div class="chart-container">
+        
+        <div class="layout-split">
             <div id="sankey-chart-container"></div>
-        </div>
 
+            <div class="side-charts">
+                <div id="scatter-plot-container"></div> 
+                <div id="pie-chart-container"></div>
+            </div>
+        </div>
+     
         <div class="nav-buttons">
             <button onclick="changeSlide(1)">Previous</button>
             <button onclick="changeSlide(3)">Next</button>
@@ -144,42 +199,48 @@
     <script type="module">
         import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@5/dist/runtime.js";
         
-        // Import team's specific notebooks
-        import defineBar from "https://api.observablehq.com/d/c798aaae39e6fb72@234.js?v=4";
-        import defineSankey from "https://api.observablehq.com/d/025c073b20115d96.js?v=4";
-        import defineBubble from "https://api.observablehq.com/d/75635c9d870d9dcf.js?v=4";
-
-        // import defineScatter from "https://api.observablehq.com/d/1faba6d3ddf2c2a1.js?v=3";
+        // Import Observable notebooks 
+        import defineBar from "https://api.observablehq.com/d/74c427e42b1123ba@238.js?v=4";
+        import defineBubble from "https://api.observablehq.com/d/471938b9223476b7@20.js?v=4";
+        import defineCombinedSankey from "https://api.observablehq.com/d/4de94ae7f19c9829.js?v=4";
 
         const runtime = new Runtime();
 
-        // Render the Grouped Bar Chart
+        // 1. Render the Grouped Bar Chart
         runtime.module(defineBar, name => {
             if (name === "chart") {
                 return new Inspector(document.querySelector("#bar-chart-container"));
             }
         });
 
-        // Render the Sankey Diagram
-        runtime.module(defineSankey, name => {
-            if (name === "chart2") {
-                return new Inspector(document.querySelector("#sankey-chart-container"));
-            }
-        });
-
-        // Render the Bubble Chart
+        // 2. Render the Bubble Chart
         runtime.module(defineBubble, name => {
             if (name === "bubbleChart") {
                 return new Inspector(document.querySelector("#bubble-chart-container"));
             }
         });
 
-        // Render the Scatterplot
-        // runtime.module(defineScatter, name => {
-        //     if (name === "screentime_vs_sleep") {
-        //         return new Inspector(document.querySelector("#scatter-chart-container"));
-        //     }
-        // });
+        // 3. Render the Sankey, Scatter, and Pie all from the same module instance
+        const main = runtime.module(defineCombinedSankey, name => {
+
+        if (name === "viewof chart2") {
+            return new Inspector(
+                document.querySelector("#sankey-chart-container")
+            );
+        }
+
+        if (name === "screentime_vs_sleep") {
+            return new Inspector(
+                document.querySelector("#scatter-plot-container")
+            );
+        }
+
+        if (name === "activity_vs_sleep_pie") {
+            return new Inspector(
+                document.querySelector("#pie-chart-container")
+            );
+        }
+        });
     </script>
 
 </body>
